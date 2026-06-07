@@ -1,0 +1,23 @@
+.badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-label-caps);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+}
+
+.easy {
+  color: var(--color-difficulty-easy);
+  background: var(--color-difficulty-easy-bg);
+}
+
+.medium {
+  color: var(--color-difficulty-medium);
+  background: var(--color-difficulty-medium-bg);
+}
+
+.hard {
+  color: var(--color-difficulty-hard);
+  background: var(--color-difficulty-hard-bg);
+}

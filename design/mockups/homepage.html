@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BackendEncyclopedia | The Engineering Knowledge Base</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#c0c1ff",
+                    "inverse-primary": "#494bd6",
+                    "tertiary-container": "#d97721",
+                    "surface": "#131315",
+                    "surface-container": "#201f22",
+                    "surface-container-high": "#2a2a2c",
+                    "tertiary-fixed": "#ffdcc5",
+                    "on-secondary-container": "#d6a9ff",
+                    "on-secondary-fixed-variant": "#6900b3",
+                    "primary-container": "#8083ff",
+                    "on-tertiary": "#4f2500",
+                    "secondary": "#ddb7ff",
+                    "on-surface": "#e5e1e4",
+                    "secondary-fixed": "#f0dbff",
+                    "on-tertiary-fixed": "#301400",
+                    "inverse-surface": "#e5e1e4",
+                    "outline": "#908fa0",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "on-secondary": "#490080",
+                    "inverse-on-surface": "#313032",
+                    "primary-fixed": "#e1e0ff",
+                    "surface-tint": "#c0c1ff",
+                    "on-tertiary-container": "#452000",
+                    "on-surface-variant": "#c7c4d7",
+                    "secondary-container": "#6f00be",
+                    "error": "#ffb4ab",
+                    "on-primary": "#1000a9",
+                    "surface-container-low": "#1c1b1d",
+                    "tertiary": "#ffb783",
+                    "on-secondary-fixed": "#2c0051",
+                    "surface-container-highest": "#353437",
+                    "on-background": "#e5e1e4",
+                    "on-primary-fixed": "#07006c",
+                    "tertiary-fixed-dim": "#ffb783",
+                    "surface-dim": "#131315",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "secondary-fixed-dim": "#ddb7ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xl": "40px",
+                    "unit": "4px",
+                    "container-max": "1440px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "sidebar-width": "280px",
+                    "sm": "8px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "label-caps": ["JetBrains Mono"],
+                    "display": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "code-block": ["JetBrains Mono"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "code-block": ["14px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #09090b;
+            color: #e5e1e4;
+            scroll-behavior: smooth;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid #27272a;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 10px;
+        }
+        .command-glow:focus-within {
+            box-shadow: 0 0 20px rgba(192, 193, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="font-body-lg text-body-lg">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center h-14 px-lg w-full fixed top-0 left-0 bg-surface/80 backdrop-blur-md z-50 border-b border-outline-variant">
+<div class="flex items-center gap-xl">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">BackendEncyclopedia</span>
+<nav class="hidden md:flex gap-md">
+<a class="font-body-lg text-body-lg text-primary border-b-2 border-primary pb-1" href="#">Glossary</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors duration-200" href="#">System Design</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors duration-200" href="#">Roadmaps</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs hover:bg-surface-container-high transition-colors duration-200 rounded">
+<span class="material-symbols-outlined text-on-surface-variant">bookmarks</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high transition-colors duration-200 rounded">
+<span class="material-symbols-outlined text-on-surface-variant">dark_mode</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high transition-colors duration-200 rounded">
+<span class="material-symbols-outlined text-on-surface-variant">terminal</span>
+</button>
+</div>
+</header>
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-3.5rem)] w-sidebar-width hidden md:flex flex-col gap-sm py-lg overflow-y-auto bg-surface-container-low border-r border-outline-variant">
+<div class="px-md mb-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Library</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant">v4.2.0-stable</p>
+</div>
+<nav class="flex flex-col gap-xs">
+<a class="flex items-center gap-sm font-label-caps text-label-caps text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+<span>Performance</span>
+</a>
+<a class="flex items-center gap-sm font-label-caps text-label-caps text-primary border-l-2 border-primary pl-4 py-2 bg-primary/10 transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+<span>Scalability</span>
+</a>
+<a class="flex items-center gap-sm font-label-caps text-label-caps text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+<span>Distributed Systems</span>
+</a>
+<a class="flex items-center gap-sm font-label-caps text-label-caps text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+<span>Security</span>
+</a>
+<a class="flex items-center gap-sm font-label-caps text-label-caps text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all group" href="#">
+<span class="material-symbols-outlined text-[18px]">monitoring</span>
+<span>Observability</span>
+</a>
+</nav>
+<div class="mt-auto px-md py-md border-t border-outline-variant">
+<button class="w-full glass-panel py-2 px-md flex justify-between items-center font-label-caps text-label-caps text-on-surface-variant hover:border-primary/50 transition-colors">
+<span>Search</span>
+<span class="font-code-block text-code-block opacity-50">⌘K</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar-width pt-20 pb-xl px-lg min-h-screen max-w-container-max">
+<!-- Hero Search Section -->
+<section class="max-w-4xl mx-auto py-20 text-center">
+<h1 class="font-display text-display mb-sm text-on-surface">Architect Your Knowledge</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl">Detailed technical documentation for the modern backend engineer.</p>
+<div class="relative command-glow transition-all duration-300">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-16 bg-surface-container border border-outline-variant rounded-xl pl-12 pr-24 font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary transition-all" placeholder="Search algorithms, concepts, patterns..." type="text"/>
+<div class="absolute inset-y-0 right-4 flex items-center gap-sm pointer-events-none">
+<span class="px-2 py-1 glass-panel font-code-block text-label-caps rounded">⌘</span>
+<span class="px-2 py-1 glass-panel font-code-block text-label-caps rounded">K</span>
+</div>
+</div>
+</section>
+<!-- Main Dashboard Layout -->
+<div class="bento-grid grid-cols-1 md:grid-cols-12 mt-12">
+<!-- Trending Concepts (8 Columns) -->
+<div class="md:col-span-8 flex flex-col gap-lg">
+<div class="flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">bolt</span>
+                        Trending Concepts
+                    </h3>
+<a class="font-label-caps text-label-caps text-primary hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Concept Card 1 -->
+<div class="glass-panel p-md rounded-xl hover:border-primary transition-all duration-300 cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-primary/10 text-primary font-label-caps text-[10px] px-2 py-1 rounded">DISTRIBUTED</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_outward</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Consensus Algorithms</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Understanding Paxos, Raft, and the foundations of distributed consistency in high-scale clusters.</p>
+</div>
+<!-- Concept Card 2 -->
+<div class="glass-panel p-md rounded-xl hover:border-primary transition-all duration-300 cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-tertiary/10 text-tertiary font-label-caps text-[10px] px-2 py-1 rounded">INFRASTRUCTURE</span>
+<span class="material-symbols-outlined text-outline group-hover:text-tertiary transition-colors">arrow_outward</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Service Mesh Mesh Topology</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Optimizing sidecar proxies and traffic management in Kubernetes environments with Istio.</p>
+</div>
+<!-- Concept Card 3 -->
+<div class="glass-panel p-md rounded-xl hover:border-primary transition-all duration-300 cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-primary/10 text-primary font-label-caps text-[10px] px-2 py-1 rounded">DATABASE</span>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_outward</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Write-Ahead Logging</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">The mechanics of durability and atomic transactions in modern relational database engines.</p>
+</div>
+<!-- Concept Card 4 -->
+<div class="glass-panel p-md rounded-xl hover:border-primary transition-all duration-300 cursor-pointer group">
+<div class="flex justify-between items-start mb-md">
+<span class="bg-error/10 text-error font-label-caps text-[10px] px-2 py-1 rounded">SECURITY</span>
+<span class="material-symbols-outlined text-outline group-hover:text-error transition-colors">arrow_outward</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Zero Trust Architecture</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Implementing cryptographically verified identity for every service-to-service call.</p>
+</div>
+</div>
+<!-- Featured Technical Visual -->
+<div class="relative w-full h-64 rounded-xl overflow-hidden glass-panel border border-outline-variant/30 mt-md">
+<img alt="System Architecture Diagram" class="w-full h-full object-cover opacity-60" data-alt="A highly detailed, futuristic system architecture diagram displayed on a dark glass interface. The visual features glowing indigo and soft violet lines connecting complex node clusters, representing microservices and data pipelines. The background is a deep charcoal black with subtle light-mode grid patterns. The aesthetic is clean, professional, and inspired by high-end engineering software dashboards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBieXBv8E784VAVB22LQwv8JUaci530VrzZRNQED1Gk5rM2J0LMF5UhgLNsxqK7lwznSk-xJ-El5u3Q9s2Lr4RwGFbhc4Q9z9l9QFDmQH9tZbEtWVtzdczPyr6cFERmtemWf3i1buaej_ptvMapEYjAxP0zRHMuJepYoXY_GIdlFS9P9iJ6eLeQSa0TZFRWJYbS1kmFZCFq1oN_7KAA1K6v2MSz6hhO6GJPAyxcXqGxVxT54Pnnj_UAcRRTJ4kkRWbXNA2x8Fdc4y0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent flex flex-col justify-end p-lg">
+<span class="font-label-caps text-label-caps text-primary mb-xs">SYSTEM DESIGN BLUEPRINT</span>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Event-Driven Architecture</h2>
+</div>
+</div>
+</div>
+<!-- Recently Viewed Sidebar (4 Columns) -->
+<div class="md:col-span-4 flex flex-col gap-lg">
+<div class="glass-panel rounded-xl p-md h-full flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">history</span>
+                        Recently Viewed
+                    </h3>
+<div class="flex flex-col gap-sm">
+<div class="p-sm hover:bg-surface-container-highest transition-colors rounded-lg group cursor-pointer border-l-2 border-transparent hover:border-primary">
+<h5 class="font-body-lg text-body-lg text-on-surface mb-xs">LSM Trees vs B-Trees</h5>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Last read: 2 hours ago</p>
+</div>
+<div class="p-sm hover:bg-surface-container-highest transition-colors rounded-lg group cursor-pointer border-l-2 border-transparent hover:border-primary">
+<h5 class="font-body-lg text-body-lg text-on-surface mb-xs">TCP Flow Control</h5>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Last read: Yesterday</p>
+</div>
+<div class="p-sm hover:bg-surface-container-highest transition-colors rounded-lg group cursor-pointer border-l-2 border-transparent hover:border-primary">
+<h5 class="font-body-lg text-body-lg text-on-surface mb-xs">Circuit Breaker Pattern</h5>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Last read: 3 days ago</p>
+</div>
+<div class="p-sm hover:bg-surface-container-highest transition-colors rounded-lg group cursor-pointer border-l-2 border-transparent hover:border-primary">
+<h5 class="font-body-lg text-body-lg text-on-surface mb-xs">QUIC Protocol Internals</h5>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Last read: 4 days ago</p>
+</div>
+</div>
+<div class="mt-8 pt-md border-t border-outline-variant">
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-md">System Health</h4>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface">Knowledge Core</span>
+<span class="flex items-center gap-xs text-[10px] font-label-caps text-green-400">
+<span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                                    STABLE
+                                </span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-[94%] h-full bg-primary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="md:ml-sidebar-width border-t border-outline-variant bg-surface-container-lowest py-lg">
+<div class="flex flex-col md:flex-row justify-between items-center px-lg max-w-container-max mx-auto w-full gap-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface mb-xs">Backend Archival</span>
+<p class="font-code-block text-code-block text-on-surface-variant opacity-60">© 2024 Backend Archival. All rights reserved. Built for high-concurrency systems.</p>
+</div>
+<div class="flex gap-lg">
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Changelog</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Status</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</footer>
+<!-- Interactive Search Script -->
+<script>
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('input').focus();
+            }
+        });
+
+        const cards = document.querySelectorAll('.glass-panel');
+        cards.forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+                card.style.opacity = '0.8';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
+            });
+        });
+    </script>
+</body></html>

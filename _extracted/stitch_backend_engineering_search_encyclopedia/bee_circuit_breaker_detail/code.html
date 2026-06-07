@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Circuit Breaker Pattern | BackendEncyclopedia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #27272a;
+        }
+        .code-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .code-scrollbar::-webkit-scrollbar-track {
+            background: #0e0e10;
+        }
+        .code-scrollbar::-webkit-scrollbar-thumb {
+            background: #2a2a2c;
+            border-radius: 4px;
+        }
+        .active-line-indicator {
+            position: absolute;
+            left: 0;
+            width: 2px;
+            height: 24px;
+            background-color: #c0c1ff;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#c0c1ff",
+                        "inverse-primary": "#494bd6",
+                        "tertiary-container": "#d97721",
+                        "surface": "#131315",
+                        "surface-container": "#201f22",
+                        "surface-container-high": "#2a2a2c",
+                        "tertiary-fixed": "#ffdcc5",
+                        "on-secondary-container": "#d6a9ff",
+                        "on-secondary-fixed-variant": "#6900b3",
+                        "primary-container": "#8083ff",
+                        "on-tertiary": "#4f2500",
+                        "secondary": "#ddb7ff",
+                        "on-surface": "#e5e1e4",
+                        "secondary-fixed": "#f0dbff",
+                        "on-tertiary-fixed": "#301400",
+                        "inverse-surface": "#e5e1e4",
+                        "outline": "#908fa0",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-secondary": "#490080",
+                        "inverse-on-surface": "#313032",
+                        "primary-fixed": "#e1e0ff",
+                        "surface-tint": "#c0c1ff",
+                        "on-tertiary-container": "#452000",
+                        "on-surface-variant": "#c7c4d7",
+                        "secondary-container": "#6f00be",
+                        "error": "#ffb4ab",
+                        "on-primary": "#1000a9",
+                        "surface-container-low": "#1c1b1d",
+                        "tertiary": "#ffb783",
+                        "on-secondary-fixed": "#2c0051",
+                        "surface-container-highest": "#353437",
+                        "on-background": "#e5e1e4",
+                        "on-primary-fixed": "#07006c",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "surface-container-lowest": "#0e0e10",
+                        "surface-bright": "#39393b",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "outline-variant": "#464554",
+                        "error-container": "#93000a",
+                        "surface-variant": "#353437",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131315",
+                        "on-primary-container": "#0d0096",
+                        "surface-dim": "#131315",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "secondary-fixed-dim": "#ddb7ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "unit": "4px",
+                        "container-max": "1440px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "sidebar-width": "280px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["JetBrains Mono"],
+                        "display": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "code-block": ["JetBrains Mono"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "code-block": ["14px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/30">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center h-14 px-lg w-full fixed top-0 left-0 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-50">
+<div class="flex items-center gap-lg">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">BackendEncyclopedia</span>
+<div class="hidden md:flex gap-md items-center">
+<a class="text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg transition-colors" href="#">Glossary</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-body-lg text-body-lg" href="#">System Design</a>
+<a class="text-on-surface-variant hover:text-on-surface font-body-lg text-body-lg transition-colors" href="#">Roadmaps</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center bg-surface-container-high px-sm py-1 rounded border border-outline-variant">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-xs">search</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">⌘K</span>
+</div>
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high p-1 rounded transition-colors" data-icon="bookmarks">bookmarks</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high p-1 rounded transition-colors" data-icon="dark_mode">dark_mode</span>
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-container-high p-1 rounded transition-colors" data-icon="terminal">terminal</span>
+</div>
+</nav>
+<!-- SideNavBar (Left) -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-sidebar-width hidden md:flex flex-col gap-sm py-lg overflow-y-auto border-r border-outline-variant bg-surface-container-low z-40">
+<div class="px-lg mb-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Library</h3>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-60">v4.2.0-stable</p>
+</div>
+<div class="flex flex-col gap-1">
+<a class="text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all flex items-center gap-sm group" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="speed">speed</span>
+<span class="font-label-caps text-label-caps">Performance</span>
+</a>
+<a class="text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all flex items-center gap-sm group" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="trending_up">trending_up</span>
+<span class="font-label-caps text-label-caps">Scalability</span>
+</a>
+<a class="text-primary border-l-2 border-primary pl-4 py-2 bg-primary/10 flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="hub">hub</span>
+<span class="font-label-caps text-label-caps">Distributed Systems</span>
+</a>
+<a class="text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="shield">shield</span>
+<span class="font-label-caps text-label-caps">Security</span>
+</a>
+<a class="text-on-surface-variant pl-4 py-2 hover:bg-surface-container-highest transition-all flex items-center gap-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="monitoring">monitoring</span>
+<span class="font-label-caps text-label-caps">Observability</span>
+</a>
+</div>
+<div class="mt-auto px-lg pt-lg border-t border-outline-variant flex flex-col gap-md">
+<div class="flex flex-col gap-sm">
+<a class="text-on-surface-variant hover:text-on-surface flex items-center gap-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="description">description</span>
+<span class="font-label-caps text-label-caps">Documentation</span>
+</a>
+<a class="text-on-surface-variant hover:text-on-surface flex items-center gap-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="code">code</span>
+<span class="font-label-caps text-label-caps">API Reference</span>
+</a>
+</div>
+<button class="bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps py-2 px-md rounded hover:bg-surface-container-highest transition-all text-left flex justify-between items-center">
+<span>Command Palette</span>
+<span class="opacity-50">⌘K</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar-width pt-14 min-h-screen flex flex-col lg:flex-row max-w-container-max mx-auto w-full">
+<!-- Center Content Area -->
+<article class="flex-1 p-lg lg:p-xl lg:max-w-4xl border-r border-outline-variant/30">
+<!-- Breadcrumbs -->
+<nav class="flex gap-xs items-center mb-md opacity-60">
+<span class="font-label-caps text-label-caps">Distributed Systems</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-caps text-label-caps">Reliability Patterns</span>
+</nav>
+<!-- Hero Title -->
+<header class="mb-xl">
+<div class="flex flex-wrap items-center gap-md mb-sm">
+<span class="bg-error/10 text-error px-2 py-0.5 font-label-caps text-label-caps border border-error/20 rounded">HARD</span>
+<span class="text-primary font-label-caps text-label-caps tracking-widest">RELIABILITY</span>
+</div>
+<h1 class="font-display text-display text-on-surface mb-md">Circuit Breaker Pattern</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed max-w-2xl">
+                    Prevent a network or service failure from cascading to other services. 
+                    The circuit breaker pattern stops cascading failures and allows failing services time to recover.
+                </p>
+</header>
+<!-- Interactive Visualization Placeholder -->
+<section class="mb-xl border border-outline-variant rounded-xl overflow-hidden bg-surface-container-low aspect-video relative group">
+<img class="w-full h-full object-cover opacity-40 mix-blend-luminosity grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="A macro photography shot of complex silver circuitry glowing with subtle purple neon pulses on a dark background. The lighting is low-key with high-contrast shadows, emphasizing a high-tech and precise engineering aesthetic. The mood is professional, calm, and focused on technical reliability, perfectly matching the backend engineering theme with its deep blacks and primary indigo accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM7PK396j1gnNj3zV1oUmRZYLAVF0RD8MzFUaRrzGeki5jRGKU4TzpzHZJcB5wU_UAvvCFW0Icf9wE4tcaMdIWkm18jlaP4tY_QE4EuBMxUMsVzzurZhruRHJI3Dj3hn3S-HOoRc7TEPs-hbhCDO2XwuP4qzMznZwje-XES92lSUCF1xvI52wNtvUDh9rXdw074Ud_cgIBC0iUTPsRqvgZs4RcajtsAx55fijzAh-lxvWNjcxYf61BwugHjZ-E3Cq7qVseuh04Ntk"/>
+<div class="absolute inset-0 flex flex-col items-center justify-center p-xl bg-surface/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-[48px] mb-md" data-icon="settings_input_component">settings_input_component</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Interactive Failure State Simulator</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center max-w-sm mt-xs">
+                        Simulate latency and error thresholds to see the breaker transition from CLOSED to OPEN.
+                    </p>
+<button class="mt-lg px-lg py-2 bg-primary text-on-primary font-label-caps text-label-caps rounded-full hover:scale-105 transition-transform active:scale-95">
+                        RUN SIMULATION
+                    </button>
+</div>
+</section>
+<!-- Markdown-rendered Content -->
+<div class="prose prose-invert max-w-none space-y-lg font-body-lg text-body-lg text-on-surface-variant">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Overview</h2>
+<p>
+                    In a distributed environment, calls to remote resources and services can fail due to transient faults, such as slow network connections, timeouts, or the resources being overcommitted or temporarily unavailable. These faults typically self-correct after a short period, and a robust cloud application should be prepared to handle them by using a strategy such as the **Retry pattern**.
+                </p>
+<p>
+                    However, there can also be situations where faults are due to unexpected events, and that might take much longer to fix. The **Circuit Breaker** pattern is different from the Retry pattern. The Retry pattern enables an application to retry an operation in the expectation that it'll succeed. The Circuit Breaker pattern prevents an application from performing an operation that is likely to fail.
+                </p>
+<!-- Complexity Table -->
+<div class="my-xl border border-outline-variant rounded bg-surface-container-lowest overflow-hidden">
+<table class="w-full text-left font-label-caps text-label-caps">
+<thead class="bg-surface-container">
+<tr>
+<th class="p-md text-on-surface border-b border-outline-variant">Metric</th>
+<th class="p-md text-on-surface border-b border-outline-variant">Complexity</th>
+<th class="p-md text-on-surface border-b border-outline-variant">Note</th>
+</tr>
+</thead>
+<tbody class="text-on-surface-variant">
+<tr class="border-b border-outline-variant/30">
+<td class="p-md">Time Complexity</td>
+<td class="p-md text-primary">O(1)</td>
+<td class="p-md">State check and transition are constant time.</td>
+</tr>
+<tr>
+<td class="p-md">Space Complexity</td>
+<td class="p-md text-primary">O(N)</td>
+<td class="p-md">N = number of monitored service endpoints.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Implementation (Go)</h2>
+<!-- Code Block -->
+<div class="relative group my-lg rounded-xl overflow-hidden border border-outline-variant bg-[#18181b]">
+<div class="flex justify-between items-center px-md py-2 bg-surface-container border-b border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant opacity-60 uppercase">GO / Standard Library</span>
+<button class="flex items-center gap-xs text-on-surface-variant hover:text-primary transition-colors" onclick="copyCode(this)">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+<span class="font-label-caps text-label-caps">COPY</span>
+</button>
+</div>
+<pre class="p-md overflow-x-auto code-scrollbar font-code-block text-code-block"><code class="text-[#e5e1e4]">
+<span class="text-[#c0c1ff]">type</span> CircuitBreaker <span class="text-[#c0c1ff]">struct</span> {
+    threshold  <span class="text-[#ddb7ff]">int</span>
+    timeout    time.Duration
+    failureCnt <span class="text-[#ddb7ff]">int</span>
+    state      <span class="text-[#ddb7ff]">string</span> <span class="text-[#c7c4d7]">// "CLOSED", "OPEN", "HALF-OPEN"</span>
+    lastFailed time.Time
+}
+
+<span class="text-[#c0c1ff]">func</span> (cb *CircuitBreaker) Call(fn <span class="text-[#c0c1ff]">func</span>() <span class="text-[#ddb7ff]">error</span>) <span class="text-[#ddb7ff]">error</span> {
+    <span class="text-[#c0c1ff]">if</span> cb.state == <span class="text-[#ffb783]">"OPEN"</span> {
+        <span class="text-[#c0c1ff]">if</span> time.Since(cb.lastFailed) &gt; cb.timeout {
+            cb.state = <span class="text-[#ffb783]">"HALF-OPEN"</span>
+        } <span class="text-[#c0c1ff]">else</span> {
+            <span class="text-[#c0c1ff]">return</span> errors.New(<span class="text-[#ffb783]">"circuit open"</span>)
+        }
+    }
+    
+    err := fn()
+    <span class="text-[#c0c1ff]">if</span> err != <span class="text-[#c0c1ff]">nil</span> {
+        cb.failureCnt++
+        <span class="text-[#c0c1ff]">if</span> cb.failureCnt &gt;= cb.threshold {
+            cb.state = <span class="text-[#ffb783]">"OPEN"</span>
+            cb.lastFailed = time.Now()
+        }
+        <span class="text-[#c0c1ff]">return</span> err
+    }
+
+    <span class="text-[#c7c4d7]// Success: Reset breaker&lt;/span&gt; cb.state = &lt;span class=" text-[#ffb783]"="">"CLOSED"</span>
+    cb.failureCnt = <span class="text-[#ffb4ab]">0</span>
+    <span class="text-[#c0c1ff]">return</span> <span class="text-[#c0c1ff]">nil</span>
+}</code></pre>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Related Concepts</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md pt-md">
+<a class="group p-md border border-outline-variant bg-surface-container-low rounded-lg hover:border-primary transition-all" href="#">
+<div class="flex justify-between items-start mb-sm">
+<span class="material-symbols-outlined text-primary" data-icon="refresh">refresh</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant opacity-50 uppercase">Pattern</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">Retry Pattern</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Exponential backoff strategies for transient service errors.</p>
+</a>
+<a class="group p-md border border-outline-variant bg-surface-container-low rounded-lg hover:border-primary transition-all" href="#">
+<div class="flex justify-between items-start mb-sm">
+<span class="material-symbols-outlined text-primary" data-icon="layers">layers</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant opacity-50 uppercase">Strategy</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">Bulkhead Pattern</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Isolating resources to prevent a complete system crash.</p>
+</a>
+</div>
+</div>
+</article>
+<!-- Table of Contents (Right Sticky) -->
+<aside class="hidden lg:block w-72 h-fit sticky top-24 px-lg">
+<h5 class="font-label-caps text-label-caps text-on-surface mb-md">ON THIS PAGE</h5>
+<div class="flex flex-col gap-sm border-l border-outline-variant relative">
+<div class="active-line-indicator transition-all duration-300" id="nav-indicator"></div>
+<a class="font-body-sm text-body-sm text-primary pl-lg py-1 transition-colors" href="#overview">Overview</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant pl-lg py-1 hover:text-on-surface transition-colors" href="#simulator">Simulator</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant pl-lg py-1 hover:text-on-surface transition-colors" href="#complexity">Complexity</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant pl-lg py-1 hover:text-on-surface transition-colors" href="#implementation">Implementation</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant pl-lg py-1 hover:text-on-surface transition-colors" href="#related">Related Concepts</a>
+</div>
+<div class="mt-xl p-md glass-panel rounded-xl">
+<p class="font-label-caps text-label-caps text-primary mb-sm">PRO TIP</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+                    "Circuit Breakers should always be combined with proper observability to prevent 'Silent Failure' syndrome."
+                </p>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="mt-xl border-t border-outline-variant bg-surface-container-lowest py-lg">
+<div class="flex flex-col md:flex-row justify-between items-center px-lg max-w-container-max mx-auto w-full gap-md">
+<p class="font-code-block text-code-block text-on-surface-variant">
+                © 2024 Backend Archival. All rights reserved. Built for high-concurrency systems.
+            </p>
+<div class="flex gap-md">
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Changelog</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Status</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-code-block text-code-block text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</footer>
+<script>
+        function copyCode(button) {
+            const code = button.closest('.relative').querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const span = button.querySelector('span:last-child');
+                const originalText = span.innerText;
+                span.innerText = 'COPIED!';
+                button.classList.add('text-primary');
+                setTimeout(() => {
+                    span.innerText = originalText;
+                    button.classList.remove('text-primary');
+                }, 2000);
+            });
+        }
+
+        // Simple smooth scroll and indicator movement for TOC
+        document.querySelectorAll('aside a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    // Visual update
+                    document.querySelectorAll('aside a').forEach(a => a.classList.replace('text-primary', 'text-on-surface-variant'));
+                    this.classList.replace('text-on-surface-variant', 'text-primary');
+                    const indicator = document.getElementById('nav-indicator');
+                    indicator.style.top = `${this.offsetTop}px`;
+                }
+            });
+        });
+
+        // Atmospheric parallax for the hero image
+        window.addEventListener('scroll', () => {
+            const img = document.querySelector('img[data-alt]');
+            const scrolled = window.pageYOffset;
+            if (img) {
+                img.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
+</body></html>

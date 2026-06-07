@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Algorithm Graph Explorer | BackendEncyclopedia</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "primary": "#c0c1ff",
+                  "inverse-primary": "#494bd6",
+                  "tertiary-container": "#d97721",
+                  "surface": "#131315",
+                  "surface-container": "#201f22",
+                  "surface-container-high": "#2a2a2c",
+                  "tertiary-fixed": "#ffdcc5",
+                  "on-secondary-container": "#d6a9ff",
+                  "on-secondary-fixed-variant": "#6900b3",
+                  "primary-container": "#8083ff",
+                  "on-tertiary": "#4f2500",
+                  "secondary": "#ddb7ff",
+                  "on-surface": "#e5e1e4",
+                  "secondary-fixed": "#f0dbff",
+                  "on-tertiary-fixed": "#301400",
+                  "inverse-surface": "#e5e1e4",
+                  "outline": "#908fa0",
+                  "primary-fixed-dim": "#c0c1ff",
+                  "on-secondary": "#490080",
+                  "inverse-on-surface": "#313032",
+                  "primary-fixed": "#e1e0ff",
+                  "surface-tint": "#c0c1ff",
+                  "on-tertiary-container": "#452000",
+                  "on-surface-variant": "#c7c4d7",
+                  "secondary-container": "#6f00be",
+                  "error": "#ffb4ab",
+                  "on-primary": "#1000a9",
+                  "surface-container-low": "#1c1b1d",
+                  "tertiary": "#ffb783",
+                  "on-secondary-fixed": "#2c0051",
+                  "surface-container-highest": "#353437",
+                  "on-background": "#e5e1e4",
+                  "on-primary-fixed": "#07006c",
+                  "tertiary-fixed-dim": "#ffb783",
+                  "surface-container-lowest": "#0e0e10",
+                  "surface-bright": "#39393b",
+                  "on-error": "#690005",
+                  "on-tertiary-fixed-variant": "#703700",
+                  "outline-variant": "#464554",
+                  "error-container": "#93000a",
+                  "surface-variant": "#353437",
+                  "on-error-container": "#ffdad6",
+                  "background": "#131315",
+                  "on-primary-container": "#0d0096",
+                  "surface-dim": "#131315",
+                  "on-primary-fixed-variant": "#2f2ebe",
+                  "secondary-fixed-dim": "#ddb7ff"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "xl": "40px",
+                  "unit": "4px",
+                  "container-max": "1440px",
+                  "xs": "4px",
+                  "md": "16px",
+                  "sidebar-width": "280px",
+                  "sm": "8px",
+                  "lg": "24px"
+          },
+          "fontFamily": {
+                  "headline-lg": ["Inter"],
+                  "label-caps": ["JetBrains Mono"],
+                  "display": ["Inter"],
+                  "headline-sm": ["Inter"],
+                  "body-lg": ["Inter"],
+                  "code-block": ["JetBrains Mono"],
+                  "body-sm": ["Inter"]
+          },
+          "fontSize": {
+                  "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                  "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                  "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                  "code-block": ["14px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                  "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #131315;
+      color: #e5e1e4;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .glass-panel {
+      background: rgba(28, 27, 29, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .node-pulse {
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(192, 193, 255, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(192, 193, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(192, 193, 255, 0); }
+    }
+
+    .grid-bg {
+      background-image: 
+        linear-gradient(to right, #27272a 1px, transparent 1px),
+        linear-gradient(to bottom, #27272a 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .connector-line {
+      stroke: #464554;
+      stroke-width: 1.5;
+      stroke-dasharray: 4;
+      animation: dash 20s linear infinite;
+    }
+
+    @keyframes dash {
+      to { stroke-dashoffset: -100; }
+    }
+
+    .node-label {
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body class="font-body-lg text-body-lg">
+<!-- TOP NAV BAR -->
+<header class="flex justify-between items-center h-14 px-lg w-full fixed top-0 left-0 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-50">
+<div class="flex items-center gap-md">
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">BackendEncyclopedia</h1>
+<div class="hidden md:flex gap-md ml-lg">
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">Glossary</a>
+<a class="font-body-lg text-body-lg text-primary border-b-2 border-primary pb-1" href="#">System Design</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-200" href="#">Roadmaps</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-high rounded transition-all active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined text-primary">bookmarks</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded transition-all active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined text-primary">dark_mode</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high rounded transition-all active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined text-primary">terminal</span>
+</button>
+</div>
+</header>
+<!-- SIDE NAV BAR -->
+<nav class="fixed left-0 top-14 h-screen w-sidebar-width hidden md:flex flex-col gap-sm py-lg overflow-y-auto bg-surface-container-low border-r border-outline-variant z-40">
+<div class="px-md mb-md">
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface">Library</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">v4.2.0-stable</span>
+</div>
+</div>
+<div class="flex flex-col">
+<a class="flex items-center gap-md py-2 text-on-surface-variant pl-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">speed</span>
+<span class="font-label-caps text-label-caps">Performance</span>
+</a>
+<a class="flex items-center gap-md py-2 text-on-surface-variant pl-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-label-caps text-label-caps">Scalability</span>
+</a>
+<a class="flex items-center gap-md py-2 text-primary border-l-2 border-primary pl-4 bg-primary/10 transition-all active:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-label-caps text-label-caps">Distributed Systems</span>
+</a>
+<a class="flex items-center gap-md py-2 text-on-surface-variant pl-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-label-caps text-label-caps">Security</span>
+</a>
+<a class="flex items-center gap-md py-2 text-on-surface-variant pl-4 hover:text-on-surface hover:bg-surface-container-highest transition-all active:translate-x-1 duration-150" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-caps text-label-caps">Observability</span>
+</a>
+</div>
+<div class="mt-auto px-md pb-xl">
+<div class="p-2 border border-outline-variant rounded bg-surface-container-high mb-md text-center cursor-pointer hover:bg-surface-container-highest transition-all">
+<span class="font-label-caps text-label-caps text-primary">Command Palette (⌘K)</span>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="flex items-center gap-sm text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="font-label-caps text-[10px]">Documentation</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">code</span>
+<span class="font-label-caps text-[10px]">API Reference</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- MAIN CANVAS AREA -->
+<main class="fixed inset-0 pt-14 md:pl-sidebar-width overflow-hidden grid-bg">
+<!-- CANVAS OVERLAY UI (Breadcrumbs & Controls) -->
+<div class="absolute top-20 left-[300px] z-20 flex gap-md">
+<div class="glass-panel px-md py-2 rounded-xl border border-outline-variant flex items-center gap-sm">
+<span class="font-label-caps text-label-caps text-outline">Distributed Systems</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+<span class="font-label-caps text-label-caps text-primary">Consensus Graph</span>
+</div>
+<div class="glass-panel px-sm py-1 rounded-xl border border-outline-variant flex items-center gap-xs">
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined">zoom_out</span></button>
+<div class="w-[1px] h-4 bg-outline-variant"></div>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined">center_focus_strong</span></button>
+</div>
+</div>
+<!-- THE GRAPH (Simulated D3/Canvas) -->
+<svg class="w-full h-full pointer-events-none absolute inset-0 pt-14 md:pl-sidebar-width" viewbox="0 0 1200 800">
+<!-- Connections -->
+<path class="connector-line" d="M 600 400 L 400 250"></path>
+<path class="connector-line" d="M 600 400 L 800 250"></path>
+<path class="connector-line" d="M 600 400 L 600 650"></path>
+</svg>
+<div class="relative w-full h-full flex items-center justify-center">
+<!-- Central Node: Consensus Algorithms -->
+<div class="absolute group flex flex-col items-center gap-sm" style="transform: translate(0, 0);">
+<div class="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center node-pulse cursor-pointer transition-all hover:scale-110 z-10" onclick="selectNode('consensus')">
+<span class="material-symbols-outlined text-[40px] text-primary" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<span class="node-label font-label-caps text-label-caps bg-surface-container/80 px-2 py-1 rounded border border-outline-variant">Consensus Algorithms</span>
+</div>
+<!-- Node: Paxos -->
+<div class="absolute group flex flex-col items-center gap-sm" style="transform: translate(-200px, -150px);">
+<div class="w-16 h-16 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center cursor-pointer transition-all hover:border-primary hover:scale-110 z-10" onclick="selectNode('paxos')">
+<span class="material-symbols-outlined text-on-surface-variant">account_tree</span>
+</div>
+<span class="node-label font-label-caps text-label-caps">Paxos</span>
+</div>
+<!-- Node: Raft -->
+<div class="absolute group flex flex-col items-center gap-sm" style="transform: translate(200px, -150px);">
+<div class="w-16 h-16 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center cursor-pointer transition-all hover:border-primary hover:scale-110 z-10" onclick="selectNode('raft')">
+<span class="material-symbols-outlined text-on-surface-variant">groups</span>
+</div>
+<span class="node-label font-label-caps text-label-caps">Raft</span>
+</div>
+<!-- Node: Zab -->
+<div class="absolute group flex flex-col items-center gap-sm" style="transform: translate(0, 250px);">
+<div class="w-16 h-16 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center cursor-pointer transition-all hover:border-primary hover:scale-110 z-10" onclick="selectNode('zab')">
+<span class="material-symbols-outlined text-on-surface-variant">security</span>
+</div>
+<span class="node-label font-label-caps text-label-caps">Zab (Zookeeper Atomic Broadcast)</span>
+</div>
+</div>
+<!-- RIGHT SIDEBAR (Details) -->
+<aside class="fixed right-0 top-14 h-[calc(100vh-3.5rem)] w-sidebar-width glass-panel border-l border-outline-variant z-40 transform translate-x-0 transition-transform duration-300" id="node-details">
+<div class="p-lg flex flex-col gap-lg h-full overflow-y-auto">
+<div class="flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-primary mb-1">SELECTED NODE</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface" id="detail-title">Consensus Algorithms</h2>
+</div>
+<button class="p-1 text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-sm">
+<span class="px-2 py-1 bg-tertiary/10 text-tertiary font-code-block text-[10px] rounded border border-tertiary/20 uppercase">Advanced</span>
+<span class="px-2 py-1 bg-primary/10 text-primary font-code-block text-[10px] rounded border border-primary/20 uppercase">Distributed</span>
+</div>
+<div class="flex flex-col gap-md">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed" id="detail-desc">
+            A fundamental problem in distributed computing is to achieve overall system reliability in the presence of a number of faulty processes. This often requires processes to agree on some data value that is needed during computation.
+          </p>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant">
+<span class="font-label-caps text-[11px] text-outline block mb-2">PROPERTIES</span>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-center gap-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+<span>Termination</span>
+</li>
+<li class="flex items-center gap-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+<span>Validity</span>
+</li>
+<li class="flex items-center gap-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+<span>Integrity</span>
+</li>
+<li class="flex items-center gap-sm text-body-sm">
+<span class="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+<span>Agreement</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="mt-4">
+<span class="font-label-caps text-[11px] text-outline block mb-3">TECHNICAL SCHEMATIC</span>
+<div class="aspect-video bg-[#18181b] rounded-lg border border-outline-variant relative overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-60 mix-blend-luminosity" data-alt="A dark and technical blueprint-style schematic of a server architecture network. The image features glowing neon lines in soft indigo and crisp white representing data flow between rectangular node blocks. The aesthetic is ultra-modern, high-contrast, and focused on backend engineering precision, with a minimalist glassmorphic texture over a deep black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJm7DcnxsuqwEoJaakes6iytKbFLSxguJoUZ-kb7FFabnO40Kq-9FSeHPTiV-62hmoaSiADDQuKsoJPspv-Q_6g4tWHBJAFONSbufWdfVsfSnrLmnVNxX6raAWQYY8dlSlZvkj8HoZdOmvMYlUqWRKn1Ew-cO-od1B1xdQ7vpQ8SmuzmJEROROFhS4O7nxOPTdbZnreAwXIil8yw1bT8t9YQBkM9IN6NEezxu-QwqoybSH8ZssDAiyM1_4uxb8dkcO2fLeFy8Xfdk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent"></div>
+</div>
+</div>
+<button class="mt-auto w-full py-3 bg-primary text-on-primary font-label-caps text-label-caps rounded-lg hover:brightness-110 transition-all flex items-center justify-center gap-sm">
+<span>Read Full Paper</span>
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+</aside>
+</main>
+<!-- FOOTER -->
+<footer class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant h-10 flex items-center px-lg z-50">
+<div class="flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto w-full">
+<p class="font-code-block text-[11px] text-on-surface-variant">© 2024 Backend Archival. Built for high-concurrency systems.</p>
+<div class="hidden md:flex gap-md">
+<a class="font-code-block text-[11px] text-on-surface-variant hover:text-primary transition-colors" href="#">Changelog</a>
+<a class="font-code-block text-[11px] text-on-surface-variant hover:text-primary transition-colors" href="#">Status</a>
+<a class="font-code-block text-[11px] text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-code-block text-[11px] text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</footer>
+<script>
+    const nodeData = {
+      consensus: {
+        title: "Consensus Algorithms",
+        desc: "A fundamental problem in distributed computing is to achieve overall system reliability in the presence of a number of faulty processes. Consensus ensures all non-faulty nodes agree on a value."
+      },
+      paxos: {
+        title: "Paxos Protocol",
+        desc: "Developed by Leslie Lamport, Paxos is a family of protocols for solving consensus in a network of unreliable processors. It is widely regarded as difficult to understand but mathematically rigorous."
+      },
+      raft: {
+        title: "Raft Consensus",
+        desc: "Designed as an alternative to Paxos, Raft is intended to be more understandable through separation of logic: leader election, log replication, and safety. Used in etcd and Consul."
+      },
+      zab: {
+        title: "Zab Protocol",
+        desc: "ZooKeeper Atomic Broadcast (ZAB) is a consensus protocol used specifically in Apache ZooKeeper. It handles leader election and recovery from crashes while ensuring strict ordering."
+      }
+    };
+
+    function selectNode(nodeId) {
+      const sidebar = document.getElementById('node-details');
+      const title = document.getElementById('detail-title');
+      const desc = document.getElementById('detail-desc');
+      
+      const data = nodeData[nodeId];
+      title.innerText = data.title;
+      desc.innerText = data.desc;
+      
+      // Visual feedback: brief highlight animation
+      sidebar.classList.remove('translate-x-0');
+      setTimeout(() => {
+        sidebar.classList.add('translate-x-0');
+      }, 10);
+    }
+
+    // Micro-interaction: parallax effect on grid
+    window.addEventListener('mousemove', (e) => {
+      const moveX = (e.clientX - window.innerWidth / 2) / 50;
+      const moveY = (e.clientY - window.innerHeight / 2) / 50;
+      document.querySelector('.grid-bg').style.backgroundPosition = `${moveX}px ${moveY}px`;
+    });
+  </script>
+</body></html>
